@@ -1,10 +1,4 @@
-# Before 'make install' is performed this script should be runnable with
-# 'make test'. After 'make install' it should work as 'perl IntspanXS.t'
-
-#########################
-
-# change 'tests => 1' to 'tests => last_test_to_print';
-
+#!/usr/bin/perl
 use strict;
 use warnings;
 
@@ -21,16 +15,16 @@ BEGIN { use_ok('AlignDB::IntSpan') }
 
 my $itx = AlignDB::IntSpan->new;
 print Dump {
-    POS_INF => $itx->POS_INF,
-    NEG_INF => $itx->NEG_INF,
+    POS_INF      => $itx->POS_INF,
+    NEG_INF      => $itx->NEG_INF,
     EMPTY_STRING => $itx->EMPTY_STRING,
 };
 print Dump $itx->as_string;
 $itx->add_range( 1, 9, 20, 39 );
 print Dump {
     edge_size    => $itx->edge_size,
-    edges        => [$itx->edges],
-    ranges       => [$itx->ranges],
+    edges        => [ $itx->edges ],
+    ranges       => [ $itx->ranges ],
     is_empty     => $itx->is_empty,
     is_not_empty => $itx->is_not_empty,
     as_string    => $itx->as_string,
@@ -112,29 +106,28 @@ sub test_add_range {
         516, 518, 520, 523, 582, 585, 595, 600, 622, 1679
     );
 
-    my @vec2 = (100, 1000000);
+    my @vec2 = ( 100, 1000000 );
 
-
-    for my $i (1 .. 10000) {
+    for my $i ( 1 .. 50000 ) {
         my $itsx = AlignDB::IntSpan->new;
 
-        if ($step >= 2) {
+        if ( $step >= 2 ) {
             $itsx->add_range(@vec1);
         }
-        if ($step >= 3) {
+        if ( $step >= 3 ) {
             $itsx->add_pair(@vec2);
         }
-        if ($step >= 4) {
-           $itsx->as_string;
+        if ( $step >= 4 ) {
+            $itsx->as_string;
         }
-        if ($step >= 5) {
-            for my $j (1 .. 200) {
-                $itsx->add_pair($j, $j);
+        if ( $step >= 5 ) {
+            for my $j ( 1 .. 200 ) {
+                $itsx->add_pair( $j, $j );
             }
         }
-        if ($step >= 6) {
-            for my $j (1 .. 200) {
-                $itsx->add_range($j * 5, $j * 10);
+        if ( $step >= 6 ) {
+            for my $j ( 1 .. 200 ) {
+                $itsx->add_range( $j * 5, $j * 10 );
             }
         }
     }

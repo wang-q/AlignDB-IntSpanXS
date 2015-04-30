@@ -1,10 +1,4 @@
-# Before 'make install' is performed this script should be runnable with
-# 'make test'. After 'make install' it should work as 'perl AlignDB::IntSpanXS.t'
-
-#########################
-
-# change 'tests => 1' to 'tests => last_test_to_print';
-
+#!/usr/bin/perl
 use strict;
 use warnings;
 
@@ -95,36 +89,46 @@ $itx->remove($supp);
 print Dump $itx->as_string;
 print Dump $itx;
 
-my $itx_copy = $itx->copy;
-print Dump $itx_copy->as_string;
-print Dump $itx_copy;
-
-{
-    my @test_array = (
-        1 .. 30,
-        32 .. 149,
-        153 .. 155,
-        159 .. 247,
-        250,
-        253 .. 464,
-        516 .. 518,
-        520 .. 523,
-        582 .. 585,
-        595 .. 600,
-        622 .. 1679,
-    );
-
-    for my $step ( 1 .. 4 ) {
-        print '-' x 60, "\n";
-        print "Benchmark 1, including object startup.\nStep $step: \n";
-
-        my $set = AlignDB::IntSpanXS->new if $step >= 1;
-        if ( $step >= 2 ) {
-            $set->add_array(\@test_array);
-        }
-        $set->add_range( 100, 1_000_000 ) if $step >= 3;
-        $set->as_string if $step >= 4;
-
-    }
+my ( $start, $end );
+for my $i ( 2 .. 6 ) {
+    printf( "step %d\n", $i );
+    $start = time;
+    test_add_range($i);
+    $end = time;
+    printf( "start %f end %f duration %f\n", $start, $end, $end - $start );
 }
 
+sub test_add_range {
+    my $step = shift;
+
+    my @vec1 = (
+        1,   30,  32,  149, 153, 155, 159, 247, 250, 250, 253, 464,
+        516, 518, 520, 523, 582, 585, 595, 600, 622, 1679
+    );
+
+    my @vec2 = ( 100, 1000000 );
+
+    for my $i ( 1 .. 50000 ) {
+        my $itsx = AlignDB::IntSpanXS->new;
+
+        if ( $step >= 2 ) {
+            $itsx->add_range(@vec1);
+        }
+        if ( $step >= 3 ) {
+            $itsx->add_pair(@vec2);
+        }
+        if ( $step >= 4 ) {
+            $itsx->as_string;
+        }
+        if ( $step >= 5 ) {
+            for my $j ( 1 .. 200 ) {
+                $itsx->add_pair( $j, $j );
+            }
+        }
+        if ( $step >= 6 ) {
+            for my $j ( 1 .. 200 ) {
+                $itsx->add_range( $j * 5, $j * 10 );
+            }
+        }
+    }
+}
