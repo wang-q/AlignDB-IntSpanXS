@@ -1,11 +1,14 @@
 package AlignDB::IntSpanXS;
 
+# ABSTRACT: Handling of sets containing integer spans.
+
 use strict;
 use warnings;
 use Carp;
-use Scalar::Util qw(looks_like_number blessed);
 
 use base qw( DynaLoader AlignDB::IntSpan );
+use Scalar::Util qw(blessed);
+use Scalar::Util::Numeric qw(isint);
 
 use overload (
     q{0+} => sub { confess "Can't numerify an AlignDB::IntSpanXS\n" },
@@ -30,7 +33,7 @@ sub new {
 
 sub edges_ref {
     my $self = shift;
-    return [$self->edges];
+    return [ $self->edges ];
 }
 
 sub sets {
@@ -74,7 +77,7 @@ sub add {
     if ( ref $first eq __PACKAGE__ ) {
         $self->add_range( $first->ranges );
     }
-    elsif ( _is_int($first) ) {
+    elsif ( isint($first) ) {
         if ( scalar @_ > 0 ) {
             $self->add_array( [ $first, @_ ] );
         }
@@ -96,7 +99,7 @@ sub remove {
     if ( ref $first eq __PACKAGE__ ) {
         $self->remove_range( $first->ranges );
     }
-    elsif ( _is_int($first) ) {
+    elsif ( isint($first) ) {
         if ( scalar @_ > 0 ) {
             $self->remove_array( [ $first, @_ ] );
         }
@@ -110,7 +113,6 @@ sub remove {
 
     return $self;
 }
-
 
 sub union {
     my $self = shift;
@@ -139,10 +141,10 @@ sub find_islands {
     my $supplied = shift;
 
     my $island;
-    if ( ref $supplied eq ref $self ) {
+    if ( ref $supplied eq __PACKAGE__ ) {
         $island = $self->_find_islands_set($supplied);
     }
-    elsif ( _is_int($supplied) ) {
+    elsif ( isint($supplied) ) {
         $island = $self->_find_islands_int($supplied);
     }
     else {
@@ -168,29 +170,21 @@ sub _find_islands_int {
     return $island;
 }
 
-# Is this an integer?
-sub _is_int {
-    return if ref $_[0];
-    return unless looks_like_number( $_[0] );
-    return unless $_[0] =~ /^[+-]?\d+$/;
-    return 1;
-}
-
-sub runlist  { shift->as_string; }
-sub run_list { shift->as_string; }
-sub elements { shift->as_array; }
-sub size  { shift->cardinality; }
-sub count { shift->cardinality; }
-sub empty { shift->is_empty; }
-sub contains { shift->contains_all(@_); }
-sub contain  { shift->contains_all(@_); }
-sub member   { shift->contains_all(@_); }
-sub duplicate { shift->copy; }
-sub intersection { shift->intersect(@_); }
-sub equals { shift->equal(@_); }
-sub lookup_index { shift->at(@_); }
+sub runlist       { shift->as_string; }
+sub run_list      { shift->as_string; }
+sub elements      { shift->as_array; }
+sub size          { shift->cardinality; }
+sub count         { shift->cardinality; }
+sub empty         { shift->is_empty; }
+sub contains      { shift->contains_all(@_); }
+sub contain       { shift->contains_all(@_); }
+sub member        { shift->contains_all(@_); }
+sub duplicate     { shift->copy; }
+sub intersection  { shift->intersect(@_); }
+sub equals        { shift->equal(@_); }
+sub lookup_index  { shift->at(@_); }
 sub lookup_member { shift->index(@_); }
-sub join_span { shift->fill(@_); }
+sub join_span     { shift->fill(@_); }
 
 1;    # Magic true value required at end of module
 
