@@ -4,6 +4,7 @@
 ,v$
 \B\.svn\b
 \B\.cvsignore$
+\B\.git\b
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -20,6 +21,9 @@
 
 # Avoid Devel::Cover generated files
 \bcover_db
+
+MYMETA\.yml
+MYMETA\.json
 
 # Avoid temp and backup files.
 ~$
