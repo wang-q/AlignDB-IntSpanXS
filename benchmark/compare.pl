@@ -8,6 +8,8 @@ use YAML qw(Dump Load DumpFile LoadFile);
 
 use Set::IntSpan;
 use Set::IntSpan::Fast;
+use Set::IntSpan::Fast::PP;
+use Set::IntSpan::Fast::XS;
 use AlignDB::IntSpan;
 use AlignDB::IntSpanXS;
 
@@ -39,9 +41,17 @@ use AlignDB::IntSpanXS;
         $set->run_list if $step >= 4;
     };
 
-    my $test_sif = sub {
+    my $test_sifp = sub {
         my $step = shift;
-        my $set = Set::IntSpan::Fast->new if $step >= 1;
+        my $set = Set::IntSpan::Fast::PP->new if $step >= 1;
+        $set->add(@test_array) if ( $step >= 2 );
+        $set->add_range( 100, 1_000_000 ) if $step >= 3;
+        $set->as_string if $step >= 4;
+    };
+
+    my $test_sifx = sub {
+        my $step = shift;
+        my $set = Set::IntSpan::Fast::XS->new if $step >= 1;
         $set->add(@test_array) if ( $step >= 2 );
         $set->add_range( 100, 1_000_000 ) if $step >= 3;
         $set->as_string if $step >= 4;
@@ -68,10 +78,11 @@ use AlignDB::IntSpanXS;
         print "Benchmark 1, including object startup.\nStep $step: \n";
         cmpthese(
             -2,
-            {   'SI'  => sub { $test_si->($step) },
-                'SIF' => sub { $test_sif->($step) },
-                'AI'  => sub { $test_ai->($step) },
-                'AIX' => sub { $test_aix->($step) },
+            {   'SI'   => sub { $test_si->($step) },
+                'SIFP' => sub { $test_sifp->($step) },
+                'SIFX' => sub { $test_sifx->($step) },
+                'AI'   => sub { $test_ai->($step) },
+                'AIX'  => sub { $test_aix->($step) },
             }
         );
     }
@@ -95,10 +106,11 @@ use AlignDB::IntSpanXS;
         622 .. 1679,
     );
 
-    my $set_si  = Set::IntSpan->new;
-    my $set_sif = Set::IntSpan::Fast->new;
-    my $set_ai  = AlignDB::IntSpan->new;
-    my $set_aix = AlignDB::IntSpanXS->new;
+    my $set_si   = Set::IntSpan->new;
+    my $set_sifp = Set::IntSpan::Fast::PP->new;
+    my $set_sifx = Set::IntSpan::Fast::XS->new;
+    my $set_ai   = AlignDB::IntSpan->new;
+    my $set_aix  = AlignDB::IntSpanXS->new;
 
     my $test_si = sub {
         my $step = shift;
@@ -110,7 +122,15 @@ use AlignDB::IntSpanXS;
         $set->run_list if $step >= 4;
     };
 
-    my $test_sif = sub {
+    my $test_sifp = sub {
+        my $step = shift;
+        my $set  = shift;
+        $set->add(@test_array) if ( $step >= 2 );
+        $set->add_range( 100, 1_000_000 ) if $step >= 3;
+        $set->as_string if $step >= 4;
+    };
+
+    my $test_sifx = sub {
         my $step = shift;
         my $set  = shift;
         $set->add(@test_array) if ( $step >= 2 );
@@ -139,10 +159,11 @@ use AlignDB::IntSpanXS;
         print "Benchmark 2, excluding object startup.\nStep $step: \n";
         cmpthese(
             -2,
-            {   'SI'  => sub { $test_si->( $step,  $set_si ) },
-                'SIF' => sub { $test_sif->( $step, $set_sif ) },
-                'AI'  => sub { $test_ai->( $step,  $set_ai ) },
-                'AIX' => sub { $test_aix->( $step, $set_aix ) },
+            {   'SI'   => sub { $test_si->( $step,   $set_si ) },
+                'SIFP' => sub { $test_sifp->( $step, $set_sifp ) },
+                'SIFX' => sub { $test_sifx->( $step, $set_sifx ) },
+                'AI'   => sub { $test_ai->( $step,   $set_ai ) },
+                'AIX'  => sub { $test_aix->( $step,  $set_aix ) },
             }
         );
     }
@@ -159,8 +180,13 @@ use AlignDB::IntSpanXS;
         $set->insert($_) for (@test_array);
     };
 
-    my $test_sif = sub {
-        my $set = Set::IntSpan::Fast->new;
+    my $test_sifp = sub {
+        my $set = Set::IntSpan::Fast::PP->new;
+        $set->add(@test_array);
+    };
+
+    my $test_sifx = sub {
+        my $set = Set::IntSpan::Fast::XS->new;
         $set->add(@test_array);
     };
 
@@ -184,7 +210,8 @@ use AlignDB::IntSpanXS;
     cmpthese(
         -2,
         {   'SI'   => sub { $test_si->() },
-            'SIF'  => sub { $test_sif->() },
+            'SIFP' => sub { $test_sifp->() },
+            'SIFX' => sub { $test_sifx->() },
             'AI'   => sub { $test_ai->() },
             'AIX'  => sub { $test_aix->() },
             'AIX2' => sub { $test_aix2->() },
@@ -204,10 +231,18 @@ use AlignDB::IntSpanXS;
         $set->U($_) for @runlists;
     };
 
-    my $test_sif = sub {
-        my $set = Set::IntSpan::Fast->new;
+    my $test_sifp = sub {
+        my $set = Set::IntSpan::Fast::PP->new;
         for (@runlists) {
-            my $rset = Set::IntSpan::Fast->new($_);
+            my $rset = Set::IntSpan::Fast::PP->new($_);
+            $set->merge($rset);
+        }
+    };
+
+    my $test_sifx = sub {
+        my $set = Set::IntSpan::Fast::XS->new;
+        for (@runlists) {
+            my $rset = Set::IntSpan::Fast::XS->new($_);
             $set->merge($rset);
         }
     };
@@ -226,10 +261,11 @@ use AlignDB::IntSpanXS;
     print "Benchmark 4, incremental union.\n";
     cmpthese(
         -2,
-        {   'SI'  => sub { $test_si->() },
-            'SIF' => sub { $test_sif->() },
-            'AI'  => sub { $test_ai->() },
-            'AIX' => sub { $test_aix->() },
+        {   'SI'   => sub { $test_si->() },
+            'SIFP' => sub { $test_sifp->() },
+            'SIFX' => sub { $test_sifx->() },
+            'AI'   => sub { $test_ai->() },
+            'AIX'  => sub { $test_aix->() },
         }
     );
 }
