@@ -20,7 +20,7 @@ use overload (
 );
 
 BEGIN {
-    our $VERSION = '0.01';
+    our $VERSION = '1.0.0';
     bootstrap AlignDB::IntSpanXS, $VERSION;
 }
 
@@ -168,6 +168,52 @@ sub _find_islands_int {
     }
 
     return $island;
+}
+
+
+sub nearest_island {
+    my $self     = shift;
+    my $supplied = shift;
+
+    if ( ref $supplied eq __PACKAGE__ ) {    # just OK
+    }
+    elsif ( isint($supplied) ) {
+        $supplied = blessed($self)->new($supplied);
+    }
+    else {
+        confess "Don't know how to deal with input to nearest_island\n";
+    }
+
+    my $island = blessed($self)->new;
+    my $min_d;
+    for my $s ( $self->sets ) {
+        for my $ss ( $supplied->sets ) {
+            next if $s->overlap($ss);
+            my $d = $s->distance($ss);
+            if ( !defined $min_d or $d <= $min_d ) {
+                if ( defined $min_d and $d == $min_d ) {
+                    $island->merge($s);
+                }
+                else {
+                    $min_d  = $d;
+                    $island = $s->copy;
+                }
+            }
+        }
+    }
+
+    return $island;
+}
+
+sub at_island {
+    my $self  = shift;
+    my $index = shift;
+
+    return if $index == 0 or abs($index) > $self->span_size;
+
+    my @islands = $self->sets;
+
+    return $index < 0 ? $islands[$index] : $islands[ $index - 1 ];
 }
 
 sub runlist       { shift->as_string; }

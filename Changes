@@ -1,6 +1,8 @@
-Revision history for Perl extension AlignDB::IntSpanXS.
+Revision history for AlignDB-IntSpanXS.
+
+1.0.0  2016-04-1 15:12:02 CST
+    - Make this official.
 
 0.01  Sun Jan 26 00:41:06 2014
 	- original version; created by h2xs 1.23 with options
 		-O -n IntspanXS ./IntspanXS/intspan/intspan.h -b 5.16.0
-
