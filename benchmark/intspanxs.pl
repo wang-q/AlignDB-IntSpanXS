@@ -95,7 +95,7 @@ for my $i ( 2 .. 6 ) {
     $start = time;
     test_add_range($i);
     $end = time;
-    printf( "start %f end %f duration %f\n", $start, $end, $end - $start );
+    printf( "duration %f\n", $end - $start );
 }
 
 sub test_add_range {
