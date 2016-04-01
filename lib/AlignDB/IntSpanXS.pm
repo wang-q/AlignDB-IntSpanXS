@@ -11,7 +11,7 @@ use Scalar::Util qw(blessed);
 use Scalar::Util::Numeric qw(isint);
 
 use overload (
-    q{0+} => sub { confess "Can't numerify an AlignDB::IntSpanXS\n" },
+    q{0+}   => sub { confess "Can't numerify an AlignDB::IntSpanXS\n" },
     q{bool} => q{is_not_empty},
     q{""}   => q{runlist},
 
@@ -170,7 +170,6 @@ sub _find_islands_int {
     return $island;
 }
 
-
 sub nearest_island {
     my $self     = shift;
     my $supplied = shift;
@@ -205,30 +204,19 @@ sub nearest_island {
     return $island;
 }
 
-sub at_island {
-    my $self  = shift;
-    my $index = shift;
-
-    return if $index == 0 or abs($index) > $self->span_size;
-
-    my @islands = $self->sets;
-
-    return $index < 0 ? $islands[$index] : $islands[ $index - 1 ];
-}
-
-sub runlist       { shift->as_string; }
-sub run_list      { shift->as_string; }
-sub elements      { shift->as_array; }
-sub size          { shift->cardinality; }
-sub count         { shift->cardinality; }
-sub empty         { shift->is_empty; }
-sub contains      { shift->contains_all(@_); }
-sub contain       { shift->contains_all(@_); }
-sub member        { shift->contains_all(@_); }
-sub duplicate     { shift->copy; }
-sub intersection  { shift->intersect(@_); }
-sub equals        { shift->equal(@_); }
-sub join_span     { shift->fill(@_); }
+sub runlist      { shift->as_string; }
+sub run_list     { shift->as_string; }
+sub elements     { shift->as_array; }
+sub size         { shift->cardinality; }
+sub count        { shift->cardinality; }
+sub empty        { shift->is_empty; }
+sub contains     { shift->contains_all(@_); }
+sub contain      { shift->contains_all(@_); }
+sub member       { shift->contains_all(@_); }
+sub duplicate    { shift->copy; }
+sub intersection { shift->intersect(@_); }
+sub equals       { shift->equal(@_); }
+sub join_span    { shift->fill(@_); }
 
 1;    # Magic true value required at end of module
 
