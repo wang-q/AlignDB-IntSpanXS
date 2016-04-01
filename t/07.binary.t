@@ -3,7 +3,6 @@ use strict;
 use warnings;
 
 use Test::More tests => 64;
-use YAML qw(Dump Load DumpFile LoadFile);
 
 BEGIN {
     use_ok('AlignDB::IntSpanXS');
@@ -23,8 +22,6 @@ my $table = <<END_TABLE;
 END_TABLE
 
 my @binaries = map { [ split( ' ', $_ ) ] } split /\s*\n\s*/, $table;
-
-print Dump \@binaries;
 
 # union
 {
