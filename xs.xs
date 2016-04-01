@@ -9,7 +9,7 @@
 
 typedef intspan*         AlignDB__IntSpanXS;
 
-MODULE = AlignDB::IntSpanXS		PACKAGE = AlignDB::IntSpanXS		
+MODULE = AlignDB::IntSpanXS		PACKAGE = AlignDB::IntSpanXS
 
 int
 POS_INF(itsx)
@@ -93,11 +93,11 @@ as_string(itsx)
         tmp_buffer = (char *)malloc(len + 1);
         if (tmp_buffer == NULL)
             XSRETURN_UNDEF;
-        
+
         intspan_as_string(itsx, tmp_buffer, len);
 
         XPUSHs(sv_2mortal(newSVpv(tmp_buffer, 0)));
-        free(tmp_buffer);  
+        free(tmp_buffer);
 
 void
 as_array(itsx)
@@ -305,5 +305,3 @@ _find_pos(itsx, val, low)
         RETVAL = intspan_find_pos(itsx, val, low);
     OUTPUT:
         RETVAL
-
-
