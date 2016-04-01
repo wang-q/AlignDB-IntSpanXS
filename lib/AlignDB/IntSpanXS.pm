@@ -1,7 +1,4 @@
 package AlignDB::IntSpanXS;
-
-# ABSTRACT: Handling of sets containing integer spans.
-
 use strict;
 use warnings;
 use Carp;
@@ -221,3 +218,33 @@ sub join_span    { shift->fill(@_); }
 1;    # Magic true value required at end of module
 
 __END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+AlignDB::IntSpanXS - XS version of AlignDB::IntSpan.
+
+=head1 SYNOPSIS
+
+    use AlignDB::IntSpanXS;
+
+    my $set = AlignDB::IntSpanXS->new;
+    $set->add(1, 2, 3, 5, 7, 9);
+    $set->add_range(100, 1_000_000);
+    print $set->as_string, "\n";    # 1-3,5,7,9,100-1000000
+
+=head1 AUTHOR
+
+Qiang Wang <wang-q@outlook.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2008 by Qiang Wang.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
