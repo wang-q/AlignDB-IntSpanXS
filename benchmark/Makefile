@@ -1,8 +1,8 @@
 CC=gcc
-CFLAGS=-c -Wall -O0 -g
+CFLAGS=-c -Wall -O0 -g -I..
 COPTS=
 LDFLAGS= -lm
-SOURCES=intspan.c test.c 
+SOURCES=../intspan.c test.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=test
 
@@ -10,9 +10,6 @@ all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) ${COPTS} $(OBJECTS) $(LDFLAGS) -o $@
-
-install: all
-	-cp $(EXECUTABLE) benchmark
 
 .c.o:
 	$(CC) ${COPTS} $(CFLAGS) $< -o $@

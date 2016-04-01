@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
         start = get_time();
         test_add_range(i);
         end = get_time();
-        printf("start %f end %f duration %f\n", start, end, end - start);
+        printf("duration %f\n", end - start);
     }
 
     printf("\n test_add_vec\n");
@@ -320,7 +320,7 @@ int main(int argc, char *argv[]) {
         start = get_time();
         test_add_vec(i);
         end = get_time();
-        printf("start %f end %f duration %f\n", start, end, end - start);
+        printf("duration %f\n", end - start);
     }
 
     intspan_destroy(this_intspan);
@@ -328,4 +328,3 @@ int main(int argc, char *argv[]) {
     veci_destroy(vec);
     return (0);
 }
-
