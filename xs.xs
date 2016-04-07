@@ -82,6 +82,15 @@ edge_size(itsx)
     OUTPUT:
         RETVAL
 
+int
+span_size(itsx)
+    AlignDB::IntSpanXS itsx
+    PROTOTYPE: $
+    CODE:
+        RETVAL = intspan_span_size(itsx);
+    OUTPUT:
+        RETVAL
+
 SV *
 as_string(itsx)
     AlignDB::IntSpanXS itsx
@@ -136,6 +145,22 @@ cardinality(itsx)
     AlignDB::IntSpanXS itsx
     CODE:
         RETVAL = intspan_cardinality(itsx);
+    OUTPUT:
+        RETVAL
+
+int
+is_empty(itsx)
+    AlignDB::IntSpanXS itsx
+    CODE:
+        RETVAL = intspan_is_empty(itsx);
+    OUTPUT:
+        RETVAL
+
+int
+is_not_empty(itsx)
+    AlignDB::IntSpanXS itsx
+    CODE:
+        RETVAL = intspan_is_not_empty(itsx);
     OUTPUT:
         RETVAL
 

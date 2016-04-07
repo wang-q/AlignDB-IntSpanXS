@@ -1,5 +1,9 @@
 Revision history for AlignDB-IntSpanXS.
 
+1.0.2  Fri Apr  8 07:31:41 2016
+    - Remove dependance on AlignDB::IntSpan
+    - Add travis-ci
+
 1.0.0  2016-04-1 15:12:02 CST
     - Make this official.
 
