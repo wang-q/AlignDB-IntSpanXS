@@ -9,4 +9,4 @@ set(SOURCE_FILES
 
 include_directories(.)
 
-add_executable(basic ${SOURCE_FILES})
+add_executable(test_c ${SOURCE_FILES})
