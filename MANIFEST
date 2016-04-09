@@ -2,10 +2,13 @@
 .travis.yml
 benchmark/compare.pl
 benchmark/internal.pl
-benchmark/test.c
+benchmark/r1.yml
+benchmark/r2.yml
 benchmark/test_ai.pl
-benchmark/test_aix.pl
+benchmark/test_c
+benchmark/test_c.c
 Changes
+CMakeLists.txt
 intspan.c
 intspan.h
 lib/AlignDB/IntSpanXS.pm

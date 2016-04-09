@@ -6,6 +6,10 @@
 \B\.cvsignore$
 \B\.git\b
 
+# IDE
+\B\.idea\b
+\B\.komodotools\b
+
 # Avoid Makemaker generated and utility files.
 \bMakefile$
 \bblib
