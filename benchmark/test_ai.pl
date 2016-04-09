@@ -172,7 +172,7 @@ sub run_file {
     my ( $start, $end );
     printf "==> test against large sets\n";
 
-    printf "step 1 load\n";
+    printf "step 1 create\n";
     $start = time;
     for ( 1 .. 100 ) {
         $r1 = new_set($str1);

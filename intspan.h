@@ -21,21 +21,21 @@ enum {
 };
 
 typedef struct {
-    size_t size, capacity;
+    int size, capacity;
     int *elements;
 } veci;
 
-veci* veci_create(size_t);
-void veci_destroy(veci *);
+veci* veci_create(int);
+void veci_destroy(veci **);
 
 #define veci_size(v) (v)->size
 
-void veci_insert(veci *, size_t, int);
+void veci_insert(veci *, int, int);
 void veci_add(veci *, int);
 
 #define veci_set(v, index, element) (v)->elements[index] = element
 
-int veci_remove(veci *, size_t);
+int veci_remove(veci *, int);
 
 #define veci_get(v, index) (v)->elements[index]
 
@@ -54,7 +54,7 @@ enum {
 static const char EMPTY_STRING[] = "-";
 
 intspan* intspan_new(void);
-void intspan_destroy(intspan *);
+void intspan_destroy(intspan **);
 
 veci* intspan_edges(intspan *);
 int intspan_edge_size(intspan *);
@@ -71,11 +71,10 @@ int intspan_is_finite(intspan *);
 int intspan_is_universal(intspan *);
 
 int intspan_span_size(intspan *);
+veci* intspan_ranges(intspan *);
 
 void intspan_as_string(intspan *, char **, int);
 veci* intspan_as_veci(intspan *);
-
-veci* intspan_ranges(intspan *);
 
 int intspan_cardinality(intspan *);
 

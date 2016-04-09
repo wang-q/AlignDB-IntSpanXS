@@ -53,18 +53,29 @@ sub edges_ref {
 # edges
 # edge_size
 # span_size
-# as_string
-# as_array
-# ranges
+
+sub ranges {
+    my $self = shift;
+
+    my @ranges;
+    my @edges = $self->edges;
+    while (@edges) {
+        my $lower = shift @edges;
+        my $upper = shift(@edges) - 1;
+        push @ranges, ( $lower, $upper );
+    }
+
+    return @ranges;
+}
 
 sub spans {
     my $self = shift;
 
     my @spans;
-    my @ranges = $self->ranges;
-    while (@ranges) {
-        my $lower = shift @ranges;
-        my $upper = shift @ranges;
+    my @edges = $self->edges;
+    while (@edges) {
+        my $lower = shift @edges;
+        my $upper = shift(@edges) - 1;
         push @spans, [ $lower, $upper ];
     }
 
@@ -75,10 +86,10 @@ sub sets {
     my $self = shift;
 
     my @sets;
-    my @ranges = $self->ranges;
-    while (@ranges) {
-        my $lower = shift @ranges;
-        my $upper = shift @ranges;
+    my @edges = $self->edges;
+    while (@edges) {
+        my $lower = shift @edges;
+        my $upper = shift(@edges) - 1;
         push @sets, blessed($self)->new("$lower-$upper");
     }
 
@@ -93,15 +104,47 @@ sub runlists {
     }
 
     my @runlists;
-    my @ranges = $self->ranges;
-    while (@ranges) {
-        my $lower  = shift @ranges;
-        my $upper  = shift @ranges;
+    my @edges = $self->edges;
+    while (@edges) {
+        my $lower = shift @edges;
+        my $upper = shift(@edges) - 1;
         my $string = $lower == $upper ? $lower : $lower . '-' . $upper;
         push @runlists, $string;
     }
 
     return @runlists;
+}
+
+sub as_string {
+    my $self = shift;
+
+    if ( $self->is_empty ) {
+        return $self->EMPTY_STRING;
+    }
+
+    my @runs;
+    my @edges = $self->edges;
+    while (@edges) {
+        my $lower = shift @edges;
+        my $upper = shift(@edges) - 1;
+        push @runs, $lower == $upper ? $lower : "$lower-$upper";
+    }
+
+    return join( ',', @runs );
+}
+
+sub as_array {
+    my $self = shift;
+
+    my @elements;
+    my @edges = $self->edges;
+    while (@edges) {
+        my $lower = shift @edges;
+        my $upper = shift(@edges) - 1;
+        push @elements, ( $lower .. $upper );
+    }
+
+    return @elements;
 }
 
 # cardinality

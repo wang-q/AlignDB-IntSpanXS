@@ -53,7 +53,7 @@ void print_vec(veci *vec) {
 void print_intspan_asvec(intspan *this_intspan) {
     veci *vec = intspan_as_veci(this_intspan);
     print_vec(vec);
-    veci_destroy(vec);
+    veci_destroy(&vec);
 }
 
 void test_add_range(int step) {
@@ -62,7 +62,7 @@ void test_add_range(int step) {
 
     int i, j, len = 1045;
     char *runlist;
-    int ary[] = {1,   30,  32,  149, 153, 155, 159, 247, 250, 250, 253,
+    int ary[] = {1, 30, 32, 149, 153, 155, 159, 247, 250, 250, 253,
                  464, 516, 518, 520, 523, 582, 585, 595, 600, 622, 1679};
     for (i = 0; i < 22; i++) {
         veci_add(vec1, ary[i]);
@@ -97,15 +97,15 @@ void test_add_range(int step) {
                 veci_add(vec3, j * 5);
                 veci_add(vec3, j * 10);
                 intspan_add_range(this_intspan, vec3);
-                veci_destroy(vec3);
+                veci_destroy(&vec3);
             }
         }
 
-        intspan_destroy(this_intspan);
+        intspan_destroy(&this_intspan);
     }
 
-    veci_destroy(vec1);
-    veci_destroy(vec2);
+    veci_destroy(&vec1);
+    veci_destroy(&vec2);
 }
 
 void test_add_vec(int step) {
@@ -167,14 +167,18 @@ void test_add_vec(int step) {
             free(runlist);
         }
 
-        intspan_destroy(test_intspan);
+        intspan_destroy(&test_intspan);
     }
 
-    veci_destroy(vec1);
+    veci_destroy(&vec1);
 }
 
 int run_test() {
     intspan *this_intspan = intspan_new();
+    intspan *supplied = intspan_new();
+    veci *vec = veci_create(64);
+    veci *ranges = veci_to_range(vec);
+
     intspan_basic_info(this_intspan);
 
     intspan_add_pair(this_intspan, 1, 9);
@@ -191,7 +195,6 @@ int run_test() {
            intspan_find_pos(this_intspan, 100, 0),
            intspan_contains(this_intspan, 100));
 
-    veci *vec = veci_create(64);
     veci_add(vec, 5);
     veci_add(vec, 30);
     printf("contains_all %d\n", intspan_contains_all(this_intspan, vec));
@@ -201,7 +204,6 @@ int run_test() {
     printf("contains_any %d\n", intspan_contains_any(this_intspan, vec));
 
     print_vec(vec);
-    veci *ranges = veci_to_range(vec);
     print_vec(ranges);
 
     veci_clear(vec);
@@ -252,12 +254,15 @@ int run_test() {
     intspan_remove_vec(this_intspan, vec);
     intspan_basic_info(this_intspan);
 
+    veci_destroy(&vec);
     vec = runlist_to_range("-");
     print_vec(vec);
 
+    veci_destroy(&vec);
     vec = runlist_to_range("1-10,15,20-31");
     print_vec(vec);
 
+    veci_destroy(&vec);
     vec = runlist_to_range("-50--10,1-10,15,20-31");
     print_vec(vec);
 
@@ -267,7 +272,6 @@ int run_test() {
     intspan_remove_runlist(this_intspan, "62-78");
     intspan_basic_info(this_intspan);
 
-    intspan *supplied = intspan_new();
     intspan_add_runlist(supplied, "-15-5");
     intspan_merge(this_intspan, supplied);
     intspan_basic_info(this_intspan);
@@ -302,9 +306,10 @@ int run_test() {
            intspan_is_finite(supplied));
     printf("is_universal %d\n", intspan_is_universal(supplied));
 
-    intspan_destroy(this_intspan);
-    intspan_destroy(supplied);
-    veci_destroy(vec);
+    intspan_destroy(&this_intspan);
+    intspan_destroy(&supplied);
+    veci_destroy(&vec);
+    veci_destroy(&ranges);
 
     return 0;
 }
@@ -344,6 +349,8 @@ void read_file(char **str, char *filename, size_t len) {
         exit(1);
     }
 
+    strcpy(*str, "");
+
     while (fgets(buf, buf_size, fp) != NULL) {
         if (len - strlen(*str) < buf_size) {
             len = strlen(*str) + buf_size + 1;
@@ -355,17 +362,102 @@ void read_file(char **str, char *filename, size_t len) {
     fclose(fp);
 }
 
+char *first_record(char *str) {
+    char *pos = strstr(str, "1: ");
+    size_t begin = pos - str + 3;
+    pos = strstr(pos, "\n");
+    size_t end = pos - str;
+
+    size_t len = end - begin + 1;
+
+    char *sub = (char *) malloc(len + 1);
+    memcpy(sub, str + begin, len);
+    sub[len] = 0;
+    return sub;
+}
+
 int run_file() {
-    size_t len = 1024 * sizeof(char);
-    char *runlist1 = (char *) malloc(len);
-    char *runlist2 = (char *) malloc(len);
+    double start, end;
+    char *r1, *r2;
+    intspan *its1 = intspan_new();
+    intspan *its2 = intspan_new();
 
-    read_file(&runlist1, "r1.yml", len);
-    printf("%ld\n", strlen(runlist1));
-    printf("%s", runlist1);
+    {
+        size_t len = 1024 * sizeof(char);
+        char *c1 = (char *) malloc(len);
+        char *c2 = (char *) malloc(len);
 
-    free(runlist1);
-    free(runlist2);
+        read_file(&c1, "r1.yml", len);
+        read_file(&c2, "r2.yml", len);
+
+        r1 = first_record(c1);
+        r2 = first_record(c2);
+
+        free(c1);
+        free(c2);
+    }
+
+//    printf("%s\n", r1);
+
+    printf("step 1 create\n");
+    start = get_time();
+    for (int i = 1; i <= 100; i++) {
+        intspan_clear(its1);
+        intspan_clear(its2);
+
+        intspan_add_runlist(its1, r1);
+        intspan_add_runlist(its2, r2);
+    }
+    end = get_time();
+    printf("duration %f\n", end - start);
+
+    printf("step 2 intersect\n");
+    start = get_time();
+    for (int i = 1; i <= 1000; i++) {
+        intspan_clear(its1);
+        intspan_clear(its2);
+
+        intspan_add_runlist(its1, r1);
+        intspan_add_runlist(its2, r2);
+        intspan_merge(its1, its2);
+    }
+    end = get_time();
+    printf("duration %f\n", end - start);
+
+    printf("step 3 intersect runlist\n");
+    start = get_time();
+    for (int i = 1; i <= 1000; i++) {
+        intspan_clear(its1);
+        intspan_clear(its2);
+
+        intspan_add_runlist(its1, r1);
+        intspan_add_runlist(its2, r2);
+
+        intspan *its_new1 = intspan_copy(its1);
+        intspan_invert(its_new1);
+
+        intspan *its_new2 = intspan_copy(its1);
+        intspan_invert(its_new2);
+
+        intspan_merge(its_new1, its_new2);
+        intspan_invert(its_new1);
+
+        size_t len = 1024 * sizeof(char);
+        char *tmp = (char *) malloc(len);
+        intspan_as_string(its_new1, &tmp, (int) len);
+        free(tmp);
+
+        intspan_destroy(&its_new1);
+        intspan_destroy(&its_new2);
+    }
+    end = get_time();
+    printf("duration %f\n", end - start);
+
+    intspan_destroy(&its1);
+    intspan_destroy(&its2);
+
+    free(r1);
+    free(r2);
 
     return 0;
 }

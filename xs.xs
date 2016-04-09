@@ -48,7 +48,7 @@ DESTROY(itsx)
     AlignDB::IntSpanXS itsx
     PROTOTYPE: $
     CODE:
-        intspan_destroy(itsx);
+        intspan_destroy(&itsx);
 
 void
 clear(itsx)
@@ -71,7 +71,7 @@ edges(itsx)
             j = veci_get(vec, i);
             XPUSHs(sv_2mortal(newSViv(j)));
         }
-        #veci_destroy(vec); //this vec belongs to the intspan object
+        #veci_destroy(&vec); //this vec belongs to the intspan object
 
 int
 edge_size(itsx)
@@ -90,55 +90,6 @@ span_size(itsx)
         RETVAL = intspan_span_size(itsx);
     OUTPUT:
         RETVAL
-
-SV *
-as_string(itsx)
-    AlignDB::IntSpanXS itsx
-    PREINIT:
-        char *tmp_buffer;
-        int len = 1024;
-    PROTOTYPE: $
-    PPCODE:
-        tmp_buffer = (char *)malloc(len + 1);
-        if (tmp_buffer == NULL)
-            XSRETURN_UNDEF;
-
-        intspan_as_string(itsx, &tmp_buffer, len);
-
-        XPUSHs(sv_2mortal(newSVpv(tmp_buffer, 0)));
-        free(tmp_buffer);
-
-void
-as_array(itsx)
-    AlignDB::IntSpanXS itsx
-    INIT:
-        int i;
-        int j;
-        veci *vec;
-    PROTOTYPE: $
-    PPCODE:
-        vec = intspan_as_veci(itsx);
-        for (i = 0; i < veci_size(vec); i++) {
-            j = veci_get(vec, i);
-            XPUSHs(sv_2mortal(newSViv(j)));
-        }
-        veci_destroy(vec);
-
-void
-ranges(itsx)
-    AlignDB::IntSpanXS itsx
-    INIT:
-        int i;
-        int j;
-        veci *vec;
-    PROTOTYPE: $
-    PPCODE:
-        vec = intspan_ranges(itsx);
-        for (i = 0; i < veci_size(vec); i++) {
-            j = veci_get(vec, i);
-            XPUSHs(sv_2mortal(newSViv(j)));
-        }
-        veci_destroy(vec);
 
 int
 cardinality(itsx)
@@ -249,7 +200,7 @@ add_array(itsx, array)
             }
         }
         intspan_add_vec(itsx, vec);
-        veci_destroy(vec);
+        veci_destroy(&vec);
 
 void
 add_runlist(itsx, rl)
@@ -301,7 +252,7 @@ remove_array(itsx, array)
             }
         }
         intspan_remove_vec(itsx, vec);
-        veci_destroy(vec);
+        veci_destroy(&vec);
 
 void
 remove_runlist(itsx, rl)

@@ -1,30 +1,30 @@
 #include "intspan.h"
 
-veci* veci_create(size_t capacity) {
-    veci *v = (veci *)malloc(sizeof(veci));
+veci *veci_create(int capacity) {
+    veci *v = (veci *) malloc(sizeof(veci));
 
     v->size = 0;
     v->capacity = capacity;
-    v->elements = (int *)malloc(capacity * sizeof(int));
+    v->elements = (int *) malloc(capacity * sizeof(int));
     v->elements[0] = MY_I32_MAX;
 
     return v;
 }
 
-void veci_destroy(veci *v) {
-    free(v->elements);
-    free(v);
+void veci_destroy(veci **v) {
+    free((*v)->elements);
+    free(*v);
 }
 
-void veci_insert(veci *v, size_t index, int element) {
-    size_t i;
+void veci_insert(veci *v, int index, int element) {
+    int i;
 
     if (v->size >= v->capacity - 1) {
         v->capacity = v->capacity * 2;
-        v->elements = (int *)realloc(v->elements, v->capacity * sizeof(int));
+        v->elements = (int *) realloc(v->elements, v->capacity * sizeof(int));
     }
 
-    if (element != MY_I32_MAX) {
+    if (element < MY_I32_MAX) {
         for (i = v->size; i > index; i--) {
             v->elements[i] = v->elements[i - 1];
         }
@@ -37,9 +37,9 @@ void veci_add(veci *v, int element) {
     veci_insert(v, (v)->size, element);
 }
 
-int veci_remove(veci *v, size_t index) {
+int veci_remove(veci *v, int index) {
     int element = v->elements[index];
-    size_t i;
+    int i;
     for (i = index + 1; i < v->size; i++) {
         v->elements[i - 1] = v->elements[i];
     }
@@ -54,23 +54,23 @@ void veci_clear(veci *v) {
     }
 }
 
-int* veci_to_array(veci *v) {
-    return (int *)v->elements;
+int *veci_to_array(veci *v) {
+    return v->elements;
 }
 
-intspan* intspan_new(void) {
-    intspan *this_intspan = (intspan *)malloc(sizeof(intspan));
-    this_intspan->edge_ =  veci_create(1024);
+intspan *intspan_new(void) {
+    intspan *this_intspan = (intspan *) malloc(sizeof(intspan));
+    this_intspan->edge_ = veci_create(1024);
 
     return this_intspan;
 }
 
-void intspan_destroy(intspan *this_intspan) {
-    veci_destroy(this_intspan->edge_);
-    free(this_intspan);
+void intspan_destroy(intspan **this_intspan) {
+    veci_destroy(&((*this_intspan)->edge_));
+    free(*this_intspan);
 }
 
-veci* intspan_edges(intspan *this_intspan) {
+veci *intspan_edges(intspan *this_intspan) {
     return this_intspan->edge_;
 }
 
@@ -95,12 +95,12 @@ int intspan_is_not_empty(intspan *this_intspan) {
 }
 
 int intspan_is_neg_inf(intspan *this_intspan) {
-    veci * edges = intspan_edges(this_intspan);
+    veci *edges = intspan_edges(this_intspan);
     return veci_get(edges, 0) == NEG_INF;
 }
 
 int intspan_is_pos_inf(intspan *this_intspan) {
-    veci * edges = intspan_edges(this_intspan);
+    veci *edges = intspan_edges(this_intspan);
     int size = veci_size(edges);
     return veci_get(edges, size - 1) == POS_INF;
 }
@@ -110,7 +110,7 @@ int intspan_is_infinite(intspan *this_intspan) {
 }
 
 int intspan_is_finite(intspan *this_intspan) {
-    return ! intspan_is_infinite(this_intspan);
+    return !intspan_is_infinite(this_intspan);
 }
 
 int intspan_is_universal(intspan *this_intspan) {
@@ -119,6 +119,23 @@ int intspan_is_universal(intspan *this_intspan) {
 
 int intspan_span_size(intspan *this_intspan) {
     return intspan_edge_size(this_intspan) / 2;
+}
+
+veci *intspan_ranges(intspan *this_intspan) {
+    veci *ranges = veci_create(1024);
+    if (intspan_is_empty(this_intspan)) {
+        return ranges;
+    }
+
+    int i, lower, upper;
+    veci *edges = intspan_edges(this_intspan);
+    for (i = 0; i < intspan_span_size(this_intspan); i++) {
+        lower = veci_get(edges, i * 2);
+        upper = veci_get(edges, i * 2 + 1) - 1;
+        veci_add(ranges, lower);
+        veci_add(ranges, upper);
+    }
+    return ranges;
 }
 
 void intspan_as_string(intspan *this_intspan, char **runlist, int len) {
@@ -137,7 +154,7 @@ void intspan_as_string(intspan *this_intspan, char **runlist, int len) {
     veci *edges = intspan_edges(this_intspan);
     int buf_size = 512;
     char buf[buf_size];
-    for (i = 0; i <  intspan_span_size(this_intspan); i++) {
+    for (i = 0; i < intspan_span_size(this_intspan); i++) {
         strcpy(buf, "");
         lower = veci_get(edges, i * 2);
         upper = veci_get(edges, i * 2 + 1) - 1;
@@ -157,16 +174,16 @@ void intspan_as_string(intspan *this_intspan, char **runlist, int len) {
         }
 
         if (len - strlen(*runlist) < buf_size) {
-            len = strlen(*runlist) + buf_size + 1;
+            len = (int) strlen(*runlist) + buf_size + 1;
             kroundup32(len);
-            *runlist = (char *) realloc(*runlist, len);
+            *runlist = (char *) realloc(*runlist, (size_t) len);
         }
         strncat(*runlist, buf, buf_size);
     }
     return;
 }
 
-veci* intspan_as_veci(intspan *this_intspan) {
+veci *intspan_as_veci(intspan *this_intspan) {
     veci *elements = veci_create(1024);
     int i, j, lower, upper;
     veci *edges;
@@ -175,7 +192,7 @@ veci* intspan_as_veci(intspan *this_intspan) {
     }
 
     edges = intspan_edges(this_intspan);
-    for (i = 0; i <  intspan_span_size(this_intspan); i++) {
+    for (i = 0; i < intspan_span_size(this_intspan); i++) {
         lower = veci_get(edges, i * 2);
         upper = veci_get(edges, i * 2 + 1) - 1;
 
@@ -191,29 +208,12 @@ veci* intspan_as_veci(intspan *this_intspan) {
     return elements;
 }
 
-veci* intspan_ranges(intspan *this_intspan) {
-    veci *ranges = veci_create(1024);
-    if (intspan_is_empty(this_intspan)) {
-        return ranges;
-    }
-
-    int i, lower, upper;
-    veci *edges = intspan_edges(this_intspan);
-    for (i = 0; i <  intspan_span_size(this_intspan); i++) {
-        lower = veci_get(edges, i * 2);
-        upper = veci_get(edges, i * 2 + 1) - 1;
-        veci_add(ranges, lower);
-        veci_add(ranges, upper);
-    }
-    return ranges;
-}
-
 int intspan_cardinality(intspan *this_intspan) {
     int card = 0;
 
     int i, lower, upper;
     veci *edges = intspan_edges(this_intspan);
-    for (i = 0; i <  intspan_span_size(this_intspan); i++) {
+    for (i = 0; i < intspan_span_size(this_intspan); i++) {
         lower = veci_get(edges, i * 2);
         upper = veci_get(edges, i * 2 + 1) - 1;
 
@@ -232,7 +232,7 @@ int intspan_find_pos(intspan *this_intspan, int val, int low) {
         if (val < veci_get(edge, mid)) {
             high = mid;
         } else if (val > veci_get(edge, mid)) {
-            low  = mid + 1;
+            low = mid + 1;
         } else {
             return mid;
         }
@@ -273,11 +273,11 @@ int intspan_contains_any(intspan *this_intspan, veci *vec) {
     return 0;
 }
 
-veci* veci_to_range(veci *vec) {
+veci *veci_to_range(veci *vec) {
     int size = veci_size(vec);
     int *ary;
     ary = veci_to_array(vec);
-    qsort(ary, size, sizeof(int), compare_int);
+    qsort(ary, (size_t) size, sizeof(int), compare_int);
 
     veci *ranges = veci_create(64);
     int pos = 0;
@@ -295,7 +295,7 @@ veci* veci_to_range(veci *vec) {
     return ranges;
 }
 
-veci* runlist_to_range(char *runlist) {
+veci *runlist_to_range(char *runlist) {
     veci *ranges = veci_create(64);
     if (strcmp(EMPTY_STRING, runlist) == 0) {
         return ranges;
@@ -308,7 +308,7 @@ veci* runlist_to_range(char *runlist) {
     for (token = strtok(str, ",");
          token != NULL;
          token = strtok(NULL, ",")
-        ) {
+            ) {
 
         number = sscanf(token, "%d-%d", &lower, &upper);
         if (number == 1) {
@@ -322,7 +322,7 @@ veci* runlist_to_range(char *runlist) {
 
 void intspan_add_range(intspan *this_intspan, veci *ranges) {
     int i, lower, upper;
-    for (i = 0; i <  veci_size(ranges) / 2; i++) {
+    for (i = 0; i < veci_size(ranges) / 2; i++) {
         lower = veci_get(ranges, i * 2);
         upper = veci_get(ranges, i * 2 + 1);
 
@@ -359,13 +359,13 @@ void intspan_add(intspan *this_intspan, int val) {
 void intspan_add_vec(intspan *this_intspan, veci *vec) {
     veci *ranges = veci_to_range(vec);
     intspan_add_range(this_intspan, ranges);
-    veci_destroy(ranges);
+    veci_destroy(&ranges);
 }
 
 void intspan_add_runlist(intspan *this_intspan, char *runlist) {
     veci *ranges = runlist_to_range(runlist);
     intspan_add_range(this_intspan, ranges);
-    veci_destroy(ranges);
+    veci_destroy(&ranges);
 }
 
 void intspan_invert(intspan *this_intspan) {
@@ -409,37 +409,37 @@ void intspan_remove(intspan *this_intspan, int val) {
 void intspan_remove_vec(intspan *this_intspan, veci *vec) {
     veci *ranges = veci_to_range(vec);
     intspan_remove_range(this_intspan, ranges);
-    veci_destroy(ranges);
+    veci_destroy(&ranges);
 }
 
 void intspan_remove_runlist(intspan *this_intspan, char *runlist) {
     veci *ranges = runlist_to_range(runlist);
     intspan_remove_range(this_intspan, ranges);
-    veci_destroy(ranges);
+    veci_destroy(&ranges);
 }
 
 // operate current set
 void intspan_merge(intspan *this_intspan, intspan *supplied) {
     veci *ranges = intspan_ranges(supplied);
     intspan_add_range(this_intspan, ranges);
-    veci_destroy(ranges);
+    veci_destroy(&ranges);
 }
 
 void intspan_subtract(intspan *this_intspan, intspan *supplied) {
     veci *ranges = intspan_ranges(supplied);
     intspan_remove_range(this_intspan, ranges);
-    veci_destroy(ranges);
+    veci_destroy(&ranges);
 }
 
-intspan* intspan_copy(intspan* this_intspan) {
-    veci * this_edges = intspan_edges(this_intspan);
+intspan *intspan_copy(intspan *this_intspan) {
+    veci *this_edges = intspan_edges(this_intspan);
 
     intspan *copy_intspan = intspan_new();
-    veci * copy_edges = intspan_edges(copy_intspan);
+    veci *copy_edges = intspan_edges(copy_intspan);
 
     int i, j;
 
-    for (i = 0; i <  veci_size(this_edges); i++) {
+    for (i = 0; i < veci_size(this_edges); i++) {
         j = veci_get(this_edges, i);
         veci_add(copy_edges, j);
     }
