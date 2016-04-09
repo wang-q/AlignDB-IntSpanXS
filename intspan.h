@@ -72,7 +72,7 @@ int intspan_is_universal(intspan *);
 
 int intspan_span_size(intspan *);
 
-void intspan_as_string(intspan *, char *, int);
+void intspan_as_string(intspan *, char **, int);
 veci* intspan_as_veci(intspan *);
 
 veci* intspan_ranges(intspan *);

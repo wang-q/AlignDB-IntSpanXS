@@ -35,7 +35,7 @@ void intspan_basic_info(intspan *this_intspan) {
            intspan_cardinality(this_intspan));
     printf("span size %d\n", intspan_span_size(this_intspan));
 
-    intspan_as_string(this_intspan, runlist, len);
+    intspan_as_string(this_intspan, &runlist, len);
     printf("runlist %s\n", runlist);
     printf("\n");
     free(runlist);
@@ -81,7 +81,7 @@ void test_add_range(int step) {
         }
         if (step >= 4) {
             runlist = malloc(len + 1);
-            intspan_as_string(this_intspan, runlist, len);
+            intspan_as_string(this_intspan, &runlist, len);
             free(runlist);
         }
 
@@ -163,7 +163,7 @@ void test_add_vec(int step) {
         }
         if (step > 4) {
             runlist = malloc(len + 1);
-            intspan_as_string(test_intspan, runlist, len);
+            intspan_as_string(test_intspan, &runlist, len);
             free(runlist);
         }
 

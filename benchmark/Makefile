@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall -O0 -g -I..
+CFLAGS=-c -Wall -Wno-unused-function -O0 -g -I..
 COPTS=
 LDFLAGS= -lm
 SOURCES=../intspan.c test.c

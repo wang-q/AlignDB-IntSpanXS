@@ -103,7 +103,7 @@ as_string(itsx)
         if (tmp_buffer == NULL)
             XSRETURN_UNDEF;
 
-        intspan_as_string(itsx, tmp_buffer, len);
+        intspan_as_string(itsx, &tmp_buffer, len);
 
         XPUSHs(sv_2mortal(newSVpv(tmp_buffer, 0)));
         free(tmp_buffer);

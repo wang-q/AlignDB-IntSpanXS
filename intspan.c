@@ -121,16 +121,16 @@ int intspan_span_size(intspan *this_intspan) {
     return intspan_edge_size(this_intspan) / 2;
 }
 
-void intspan_as_string(intspan *this_intspan, char *runlist, int len) {
+void intspan_as_string(intspan *this_intspan, char **runlist, int len) {
     if (intspan_is_empty(this_intspan)) {
-        runlist = strcpy(runlist, EMPTY_STRING);
+        strcpy(*runlist, EMPTY_STRING);
         return;
     }
 
     if (len == 0) {
         len = 1024;
     }
-    strcpy(runlist, "");
+    strcpy(*runlist, "");
 
     int i, lower, upper;
     int first_flag = 1;
@@ -156,12 +156,12 @@ void intspan_as_string(intspan *this_intspan, char *runlist, int len) {
             }
         }
 
-        if (len - strlen(runlist) < buf_size) {
-            len = strlen(runlist) + buf_size + 1;
+        if (len - strlen(*runlist) < buf_size) {
+            len = strlen(*runlist) + buf_size + 1;
             kroundup32(len);
-            runlist = (char *) realloc(runlist, len);
+            *runlist = (char *) realloc(*runlist, len);
         }
-        strncat(runlist, buf, buf_size);
+        strncat(*runlist, buf, buf_size);
     }
     return;
 }
