@@ -6,12 +6,44 @@ use Time::HiRes qw{ time };
 use YAML qw(Dump Load DumpFile LoadFile);
 
 use AlignDB::IntSpan;
+use AlignDB::IntSpanXS;
 
-run_test();
-run_benchmark();
+if ( @ARGV == 0 ) {
+    print "Usage:\n"
+        . " " x 4
+        . "perl $0 test\n"
+        . " " x 4
+        . "perl $0 benchmark\n"
+        . " " x 4
+        . "perl $0 file\n"
+        . "With AlignDB::IntSpanXS\n"
+        . " " x 4
+        . "perl $0 file xs\n";
+}
+elsif ( $ARGV[0] eq "test" ) {
+    run_test();
+}
+elsif ( $ARGV[0] eq "benchmark" ) {
+    run_benchmark();
+}
+elsif ( $ARGV[0] eq "file" ) {
+    run_file();
+}
+else {
+    printf "unrecognized commad '%s'. Abort!\n", $ARGV[0];
+}
+
+sub new_set {
+    if ( defined $ARGV[1] ) {
+        return AlignDB::IntSpanXS->new;
+    }
+    else {
+        return AlignDB::IntSpan->new;
+    }
+}
 
 sub run_test {
-    my $itx = AlignDB::IntSpan->new;
+    my $itx = new_set();
     print Dump {
         POS_INF      => $itx->POS_INF,
         NEG_INF      => $itx->NEG_INF,
@@ -109,8 +141,8 @@ sub test_add_range {
 
     my @vec2 = ( 100, 1000000 );
 
-    for my $i ( 1 .. 50000 ) {
-        my $itsx = AlignDB::IntSpan->new;
+    for ( 1 .. 50000 ) {
+        my $itsx = new_set();
 
         if ( $step >= 2 ) {
             $itsx->add_range(@vec1);
@@ -132,4 +164,20 @@ sub test_add_range {
             }
         }
     }
+}
+
+sub run_file {
+    my $r1 = new_set();
+    $r1->add( LoadFile("r1.yml")->{1} );
+    my $r2 = new_set();
+    $r2->add( LoadFile("r2.yml")->{1} );
+
+    printf("run large set intersections\n");
+    my ( $start, $end );
+    $start = time;
+    for ( 1 .. 1000 ) {
+        $r1->intersect($r2);
+    }
+    $end = time;
+    printf( "duration %f\n", $end - $start );
 }
