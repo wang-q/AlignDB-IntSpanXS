@@ -7,6 +7,14 @@
 #include <string.h>
 #include <ctype.h>
 
+// from kseq.h
+// rounded to the next closest 2^k
+#ifndef kroundup32
+#define kroundup32(x)                                          \
+    (--(x), (x) |= (x) >> 1, (x) |= (x) >> 2, (x) |= (x) >> 4, \
+     (x) |= (x) >> 8, (x) |= (x) >> 16, ++(x))
+#endif
+
 enum {
     MY_I32_MAX = 2147483647,
     MY_I32_MIN = (-2147483647 - 1)
@@ -104,4 +112,3 @@ void intspan_subtract(intspan *, intspan *);
 intspan* intspan_copy(intspan*);
 
 #endif
-

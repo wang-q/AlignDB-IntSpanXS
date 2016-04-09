@@ -135,33 +135,33 @@ void intspan_as_string(intspan *this_intspan, char *runlist, int len) {
     int i, lower, upper;
     int first_flag = 1;
     veci *edges = intspan_edges(this_intspan);
-    char result[128];
+    int buf_size = 512;
+    char buf[buf_size];
     for (i = 0; i <  intspan_span_size(this_intspan); i++) {
-        strcpy(result, "");
+        strcpy(buf, "");
         lower = veci_get(edges, i * 2);
         upper = veci_get(edges, i * 2 + 1) - 1;
         if (first_flag) {
             first_flag = 0;
             if (lower == upper) {
-                sprintf(result, "%d", lower);
+                sprintf(buf, "%d", lower);
             } else {
-                sprintf(result, "%d-%d", lower, upper);
+                sprintf(buf, "%d-%d", lower, upper);
             }
         } else {
             if (lower == upper) {
-                sprintf(result, ",%d", lower);
+                sprintf(buf, ",%d", lower);
             } else {
-                sprintf(result, ",%d-%d", lower, upper);
+                sprintf(buf, ",%d-%d", lower, upper);
             }
         }
 
-        if (strlen(runlist) + strlen(result) < len) {
-            strcat(runlist, result);
-        } else {
-            len = len * 2;
-            runlist = realloc(runlist, len);
-            strcat(runlist, result);
+        if (len - strlen(runlist) < buf_size) {
+            len = strlen(runlist) + buf_size + 1;
+            kroundup32(len);
+            runlist = (char *) realloc(runlist, len);
         }
+        strncat(runlist, buf, buf_size);
     }
     return;
 }
@@ -446,4 +446,3 @@ intspan* intspan_copy(intspan* this_intspan) {
 
     return copy_intspan;
 }
-
