@@ -173,7 +173,7 @@ void test_add_vec(int step) {
     veci_destroy(vec1);
 }
 
-int main(int argc, char *argv[]) {
+int run_test() {
     intspan *this_intspan = intspan_new();
     intspan_basic_info(this_intspan);
 
@@ -302,6 +302,14 @@ int main(int argc, char *argv[]) {
            intspan_is_finite(supplied));
     printf("is_universal %d\n", intspan_is_universal(supplied));
 
+    intspan_destroy(this_intspan);
+    intspan_destroy(supplied);
+    veci_destroy(vec);
+
+    return 0;
+}
+
+int run_benchmark() {
     double start, end;
     int i;
 
@@ -323,8 +331,66 @@ int main(int argc, char *argv[]) {
         printf("duration %f\n", end - start);
     }
 
-    intspan_destroy(this_intspan);
-    intspan_destroy(supplied);
-    veci_destroy(vec);
-    return (0);
+    return 0;
+}
+
+void read_file(char **str, char *filename, size_t len) {
+    FILE *fp;
+    int buf_size = 512;
+    char buf[buf_size];
+    fp = fopen(filename, "rt");
+    if (!fp) {
+        fprintf(stderr, "can't open %s\n", filename);
+        exit(1);
+    }
+
+    while (fgets(buf, buf_size, fp) != NULL) {
+        if (len - strlen(*str) < buf_size) {
+            len = strlen(*str) + buf_size + 1;
+            kroundup32(len);
+            *str = (char *) realloc(*str, len);
+        }
+        strncat(*str, buf, buf_size);
+    }
+    fclose(fp);
+}
+
+int run_file() {
+    size_t len = 1024 * sizeof(char);
+    char *runlist1 = (char *) malloc(len);
+    char *runlist2 = (char *) malloc(len);
+
+    read_file(&runlist1, "r1.yml", len);
+    printf("%ld\n", strlen(runlist1));
+    printf("%s", runlist1);
+
+    free(runlist1);
+    free(runlist2);
+
+    return 0;
+}
+
+static int usage() {
+    fprintf(stderr, "\n"
+            "Usage:     test_c test\n"
+            "           test_c benchmark\n"
+            "           test_c file\n"
+    );
+    return 1;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc == 1) return usage();
+
+    if (strcmp(argv[1], "test") == 0)
+        run_test();
+    else if (strcmp(argv[1], "benchmark") == 0)
+        run_benchmark();
+    else if (strcmp(argv[1], "file") == 0)
+        run_file();
+    else {
+        fprintf(stderr, "unrecognized commad '%s'. Abort!\n", argv[1]);
+        return 1;
+    }
+    return 0;
 }

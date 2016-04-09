@@ -2,9 +2,9 @@ CC=gcc
 CFLAGS=-c -Wall -Wno-unused-function -O0 -g -I..
 COPTS=
 LDFLAGS= -lm
-SOURCES=../intspan.c test.c
+SOURCES=../intspan.c test_c.c
 OBJECTS=$(SOURCES:.c=.o)
-EXECUTABLE=test
+EXECUTABLE=test_c
 
 all: $(SOURCES) $(EXECUTABLE)
 
