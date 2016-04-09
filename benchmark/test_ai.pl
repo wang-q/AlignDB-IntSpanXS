@@ -35,10 +35,10 @@ else {
 
 sub new_set {
     if ( defined $ARGV[1] ) {
-        return AlignDB::IntSpanXS->new;
+        return AlignDB::IntSpanXS->new(@_);
     }
     else {
-        return AlignDB::IntSpan->new;
+        return AlignDB::IntSpan->new(@_);
     }
 }
 
@@ -167,17 +167,33 @@ sub test_add_range {
 }
 
 sub run_file {
-    my $r1 = new_set();
-    $r1->add( LoadFile("r1.yml")->{1} );
-    my $r2 = new_set();
-    $r2->add( LoadFile("r2.yml")->{1} );
-
-    printf("run large set intersections\n");
+    my ($r1, $r2);
+    my ($str1, $str2) = (LoadFile("r1.yml")->{1}, LoadFile("r2.yml")->{1});
     my ( $start, $end );
+    printf "==> test against large sets\n";
+
+    printf "step 1 load\n";
+    $start = time;
+    for ( 1 .. 100 ) {
+        $r1 = new_set($str1);
+        $r2 = new_set($str2);
+    }
+    $end = time;
+    printf "duration %f\n", $end - $start;
+
+    printf "step 2 intersect\n";
     $start = time;
     for ( 1 .. 1000 ) {
         $r1->intersect($r2);
     }
     $end = time;
-    printf( "duration %f\n", $end - $start );
+    printf "duration %f\n", $end - $start;
+
+    printf "step 3 intersect runlist\n";
+    $start = time;
+    for ( 1 .. 1000 ) {
+        $r1->intersect($r2)->runlist;
+    }
+    $end = time;
+    printf "duration %f\n", $end - $start;
 }
