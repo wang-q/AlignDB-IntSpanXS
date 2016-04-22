@@ -167,8 +167,8 @@ sub test_add_range {
 }
 
 sub run_file {
-    my ($r1, $r2);
-    my ($str1, $str2) = (LoadFile("r1.yml")->{1}, LoadFile("r2.yml")->{1});
+    my ( $r1,    $r2 );
+    my ( $str1,  $str2 ) = ( LoadFile("r1.yml")->{1}, LoadFile("r2.yml")->{1} );
     my ( $start, $end );
     printf "==> test against large sets\n";
 
@@ -184,6 +184,8 @@ sub run_file {
     printf "step 2 intersect\n";
     $start = time;
     for ( 1 .. 1000 ) {
+        $r1 = new_set($str1);
+        $r2 = new_set($str2);
         $r1->intersect($r2);
     }
     $end = time;
@@ -192,6 +194,8 @@ sub run_file {
     printf "step 3 intersect runlist\n";
     $start = time;
     for ( 1 .. 1000 ) {
+        $r1 = new_set($str1);
+        $r2 = new_set($str2);
         $r1->intersect($r2)->runlist;
     }
     $end = time;
