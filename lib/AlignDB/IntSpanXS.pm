@@ -106,8 +106,8 @@ sub runlists {
     my @runlists;
     my @edges = $self->edges;
     while (@edges) {
-        my $lower = shift @edges;
-        my $upper = shift(@edges) - 1;
+        my $lower  = shift @edges;
+        my $upper  = shift(@edges) - 1;
         my $string = $lower == $upper ? $lower : $lower . '-' . $upper;
         push @runlists, $string;
     }
@@ -178,7 +178,6 @@ sub contains_any {
 
 # add_pair
 # add_int
-# add_array
 # add_runlist
 
 sub add_range {
@@ -207,7 +206,7 @@ sub add {
     }
     elsif ( isint($first) ) {
         if ( scalar @_ > 0 ) {
-            $self->add_array( [ $first, @_ ] );
+            $self->add_range( $self->_list_to_ranges( $first, @_ ) );
         }
         else {
             $self->add_int($first);
@@ -223,7 +222,6 @@ sub add {
 # invert
 # remove_pair
 # remove_int
-# remove_array
 # remove_runlist
 
 sub remove_range {
@@ -245,7 +243,7 @@ sub remove {
     }
     elsif ( isint($first) ) {
         if ( scalar @_ > 0 ) {
-            $self->remove_array( [ $first, @_ ] );
+            $self->remove_range( $self->_list_to_ranges( $first, @_ ) );
         }
         else {
             $self->remove_int($first);
@@ -387,8 +385,7 @@ sub at {
     if ( $index == 0 || abs($index) > $self->cardinality ) {
         return;
     }
-    my $member
-        = $index < 0 ? $self->_at_neg( -$index ) : $self->_at_pos($index);
+    my $member = $index < 0 ? $self->_at_neg( -$index ) : $self->_at_pos($index);
     return $member;
 }
 

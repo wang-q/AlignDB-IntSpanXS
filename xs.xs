@@ -183,26 +183,6 @@ add_int(itsx, i)
         intspan_add(itsx, i);
 
 void
-add_array(itsx, array)
-    AlignDB::IntSpanXS itsx
-    AV * array
-    INIT:
-        int i;
-        int j;
-        veci *vec = veci_create(64);
-    PROTOTYPE: $$
-    CODE:
-        for (i = 0; i <= av_len(array); i++) {
-            SV** elem = av_fetch(array, i, 0);
-            if (elem != NULL) {
-                j = SvIV(*elem);
-                veci_add(vec, j);
-            }
-        }
-        intspan_add_vec(itsx, vec);
-        veci_destroy(&vec);
-
-void
 add_runlist(itsx, rl)
     AlignDB::IntSpanXS itsx
     char * rl
@@ -233,26 +213,6 @@ remove_int(itsx, i)
     PROTOTYPE: $$
     CODE:
         intspan_remove(itsx, i);
-
-void
-remove_array(itsx, array)
-    AlignDB::IntSpanXS itsx
-    AV * array
-    INIT:
-        int i;
-        int j;
-        veci *vec = veci_create(64);
-    PROTOTYPE: $$
-    CODE:
-        for (i = 0; i <= av_len(array); i++) {
-            SV** elem = av_fetch(array, i, 0);
-            if (elem != NULL) {
-                j = SvIV(*elem);
-                veci_add(vec, j);
-            }
-        }
-        intspan_remove_vec(itsx, vec);
-        veci_destroy(&vec);
 
 void
 remove_runlist(itsx, rl)
