@@ -941,7 +941,6 @@ sub member       { shift->contains_all(@_); }
 sub duplicate    { shift->copy; }
 sub intersection { shift->intersect(@_); }
 sub equals       { shift->equal(@_); }
-sub join_span    { shift->fill(@_); }
 
 1;    # Magic true value required at end of module
 
