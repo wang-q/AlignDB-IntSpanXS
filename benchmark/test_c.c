@@ -93,11 +93,7 @@ void test_add_range(int step) {
 
         if (step >= 6) {
             for (j = 1; j <= 200; j++) {
-                veci *vec3 = veci_create(64);
-                veci_add(vec3, j * 5);
-                veci_add(vec3, j * 10);
-                intspan_add_range(this_intspan, vec3);
-                veci_destroy(&vec3);
+                intspan_add_pair(this_intspan, j * 5, j * 10);
             }
         }
 
