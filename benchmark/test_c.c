@@ -92,7 +92,7 @@ void test_add_range(int step) {
         }
 
         if (step >= 6) {
-            for (j = 1; j <= 100; j++) {
+            for (j = 1; j <= 200; j++) {
                 veci *vec3 = veci_create(64);
                 veci_add(vec3, j * 5);
                 veci_add(vec3, j * 10);
@@ -106,71 +106,6 @@ void test_add_range(int step) {
 
     veci_destroy(&vec1);
     veci_destroy(&vec2);
-}
-
-void test_add_vec(int step) {
-    veci *vec1 = veci_create(10);
-
-    intspan *test_intspan;
-    char *runlist;
-    int i, j, len = 1024;
-
-    for (i = 1; i <= 30; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 32; i <= 149; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 32; i <= 149; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 153; i <= 155; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 159; i <= 247; i++) {
-        veci_add(vec1, i);
-    }
-    veci_add(vec1, 250);
-    for (i = 253; i <= 464; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 516; i <= 518; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 520; i <= 523; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 582; i <= 585; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 595; i <= 600; i++) {
-        veci_add(vec1, i);
-    }
-    for (i = 622; i <= 1679; i++) {
-        veci_add(vec1, i);
-    }
-
-    for (j = 1; j <= 50000; j++) {
-
-        if (step >= 1) {
-            test_intspan = intspan_new();
-        }
-        if (step >= 2) {
-            intspan_add_vec(test_intspan, vec1);
-        }
-        if (step >= 3) {
-            intspan_add_pair(test_intspan, 100, 1000000);
-        }
-        if (step > 4) {
-            runlist = malloc(len + 1);
-            intspan_as_string(test_intspan, &runlist, len);
-            free(runlist);
-        }
-
-        intspan_destroy(&test_intspan);
-    }
-
-    veci_destroy(&vec1);
 }
 
 int run_test() {
@@ -323,15 +258,6 @@ int run_benchmark() {
         printf("step %d\n", i);
         start = get_time();
         test_add_range(i);
-        end = get_time();
-        printf("duration %f\n", end - start);
-    }
-
-    printf("\n test_add_vec\n");
-    for (i = 2; i <= 5; i++) {
-        printf("step %d\n", i);
-        start = get_time();
-        test_add_vec(i);
         end = get_time();
         printf("duration %f\n", end - start);
     }
